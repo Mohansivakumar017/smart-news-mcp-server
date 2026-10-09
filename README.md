@@ -177,6 +177,19 @@ Fetch and extract clean body paragraphs from any article URL for in-depth LLM an
 }
 ```
 
+## 🤖 Autonomous Agentic Workflow
+
+This repository includes an autonomous news research agent ([agent.py](agent.py)) that demonstrates end-to-end agentic workflow orchestration using the MCP tools:
+
+```bash
+python agent.py "artificial intelligence"
+```
+
+**How the Agent Operates:**
+1. **Tool Invocation 1:** Formulates search strategy and queries `search_articles_by_keyword`.
+2. **Tool Invocation 2:** Analyzes retrieved candidates and extracts full context via `get_article_content`.
+3. **Synthesis:** Synthesizes an executive intelligence briefing with key takeaways, publisher metadata, and related coverage citations.
+
 ---
 
 ## 🧪 Testing
