@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart News Feed — MCP Server & Live Dashboard</title>
+  <meta name="description" content="Interactive demo and visual explorer for the Smart News Feed MCP Server built with FastMCP.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #111827;
+      --bg-card: rgba(17, 24, 39, 0.75);
+      --bg-card-hover: rgba(31, 41, 55, 0.85);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(99, 102, 241, 0.5);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+      --badge-bg: rgba(99, 102, 241, 0.15);
+      --badge-text: #a5b4fc;
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.12);
+      --code-bg: #030712;
+      --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      width: 100%;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .badge-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.85rem;
+      background: var(--success-bg);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #34d399;
+      margin-bottom: 1rem;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.75rem;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* Search & Controls */
+    .controls-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.85rem 1rem 0.85rem 2.85rem;
+      background: rgba(3, 7, 18, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+      background: rgba(3, 7, 18, 0.85);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .btn {
+      padding: 0.85rem 1.4rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Topic Chips */
+    .chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .chips-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-right: 0.25rem;
+    }
+
+    .chip {
+      padding: 0.4rem 0.85rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .chip:hover, .chip.active {
+      background: var(--badge-bg);
+      border-color: var(--accent);
+      color: var(--badge-text);
+      transform: translateY(-1px);
+    }
+
+    /* Meta Bar */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding: 0 0.25rem;
+    }
+
+    .results-count {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .tool-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      background: rgba(99, 102, 241, 0.1);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    /* Grid */
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    /* News Card */
+    .news-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .news-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .source-tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+    }
+
+    .date-tag {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-title a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .card-title a:hover {
+      color: var(--badge-text);
+    }
+
+    .card-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+      flex-grow: 1;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .read-link {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: gap 0.2s ease;
+    }
+
+    .read-link:hover {
+      gap: 0.55rem;
+      color: #a5b4fc;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+    }
+
+    /* JSON Inspector */
+    .inspector-card {
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-top: 2rem;
+    }
+
+    .inspector-header {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .inspector-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    pre code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      display: block;
+      padding: 1.25rem;
+      overflow-x: auto;
+      max-height: 380px;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: auto;
+      padding-top: 2rem;
+    }
+
+    @media (max-width: 640px) {
+      .search-row {
+        flex-direction: column;
+      }
+      .news-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="badge-bar">
+        <span class="pulse-dot"></span>
+        <span>FastMCP Server Online &bull; /mcp active</span>
+      </div>
+      <h1>Smart News Feed</h1>
+      <p class="subtitle">Real-time RSS Intelligence for LLMs & AI Agents with live FastMCP tool execution.</p>
+    </header>
+
+    <!-- Controls -->
+    <section class="controls-card">
+      <form id="search-form" onsubmit="event.preventDefault(); performSearch();">
+        <div class="search-row">
+          <div class="input-wrapper">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+              type="text" 
+              id="search-input" 
+              class="search-input" 
+              placeholder="Search news by topic or keyword (e.g. Artificial Intelligence, Space, Economy)..." 
+              autocomplete="off"
+            />
+          </div>
+          <button type="submit" class="btn btn-primary" id="search-btn">
+            <span class="spinner" id="search-spinner"></span>
+            <span>Search Tool</span>
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="loadHeadlines();" id="headlines-btn">
+            <span>Top Headlines</span>
+          </button>
+        </div>
+
+        <div class="chips-row">
+          <span class="chips-label">Quick Topics:</span>
+          <button type="button" class="chip active" onclick="setTopic(this, 'Top Headlines'); loadHeadlines();">🔥 Top Headlines</button>
+          <button type="button" class="chip" onclick="setTopic(this, 'Artificial Intelligence')">🤖 Artificial Intelligence</button>
+          <button type="button" class="chip" onclick="setTopic(this, 'Space Exploration')">🚀 Space</button>
+          <button type="button" class="chip" onclick="setTopic(this, 'Climate & Energy')">🌱 Clean Energy</button>
+          <button type="button" class="chip" onclick="setTopic(this, 'Technology')">💻 Tech</button>
+          <button type="button" class="chip" onclick="setTopic(this, 'Global Economy')">📈 Economy</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="results-count" id="results-count">Showing latest articles...</div>
+      <div class="tool-badge" id="tool-badge">tool: get_google_news_feed</div>
+    </div>
+
+    <!-- News Grid -->
+    <div class="news-grid" id="news-grid">
+      <!-- Cards rendered here via JS -->
+    </div>
+
+    <!-- MCP JSON Protocol Inspector -->
+    <section class="inspector-card">
+      <div class="inspector-header">
+        <span class="inspector-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+          Raw MCP JSON-RPC Output (Live Tool Response)
+        </span>
+        <button class="copy-btn" onclick="copyJSON()">Copy Raw JSON</button>
+      </div>
+      <pre><code id="json-preview">// Call a tool or load feed to inspect MCP response payload...</code></pre>
+    </section>
+
+    <footer>
+      Smart News Feed MCP Server &bull; Powered by FastMCP & Google News RSS &bull; <a href="/mcp" style="color: var(--accent); text-decoration: none;">MCP Endpoint: /mcp</a>
+    </footer>
+  </div>
+
+  <script>
+    let currentPayload = [];
+
+    function setTopic(element, topic) {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      element.classList.add('active');
+      if (topic !== 'Top Headlines') {
+        document.getElementById('search-input').value = topic;
+        performSearch(topic);
+      }
+    }
+
+    function showLoading(isLoading) {
+      const spinner = document.getElementById('search-spinner');
+      const btnText = document.querySelector('#search-btn span:last-child');
+      if (isLoading) {
+        spinner.style.display = 'inline-block';
+        btnText.textContent = 'Fetching...';
+      } else {
+        spinner.style.display = 'none';
+        btnText.textContent = 'Search Tool';
+      }
+    }
+
+    async function loadHeadlines(limit = 6) {
+      showLoading(true);
+      document.getElementById('tool-badge').textContent = 'tool: get_google_news_feed(max_results=' + limit + ')';
+      try {
+        const res = await fetch(`/api/feed?max_results=${limit}`);
+        const data = await res.json();
+        currentPayload = data;
+        renderCards(data, 'Top Headlines');
+      } catch (err) {
+        renderError('Failed to fetch Google News feed. Please check server.');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function performSearch(query) {
+      const input = query || document.getElementById('search-input').value.trim();
+      if (!input) return loadHeadlines();
+
+      showLoading(true);
+      document.getElementById('tool-badge').textContent = `tool: search_articles_by_keyword(keyword="${input}")`;
+      try {
+        const res = await fetch(`/api/search?keyword=${encodeURIComponent(input)}&max_results=6`);
+        const data = await res.json();
+        currentPayload = data;
+        renderCards(data, `Results for "${input}"`);
+      } catch (err) {
+        renderError('Search failed. Please try again.');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function renderCards(articles, label) {
+      const grid = document.getElementById('news-grid');
+      const countEl = document.getElementById('results-count');
+      const jsonEl = document.getElementById('json-preview');
+
+      countEl.textContent = `${articles.length} articles found • ${label}`;
+      jsonEl.textContent = JSON.stringify(articles, null, 2);
+
+      if (!articles || articles.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;">No articles found for this topic.</div>`;
+        return;
+      }
+
+      grid.innerHTML = articles.map((article, idx) => `
+        <article class="news-card">
+          <div>
+            <div class="card-top">
+              <span class="source-tag">${escapeHTML(article.source || 'News')}</span>
+              <span class="date-tag">${escapeHTML(article.pubDate ? article.pubDate.slice(0, 16) : '')}</span>
+            </div>
+            <h3 class="card-title">
+              <a href="${escapeHTML(article.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(article.title)}</a>
+            </h3>
+            <p class="card-desc">${escapeHTML(article.description || 'No summary available.')}</p>
+          </div>
+          <div class="card-footer">
+            <a href="${escapeHTML(article.url)}" target="_blank" rel="noopener noreferrer" class="read-link">
+              Read Story <span>&rarr;</span>
+            </a>
+            <button class="copy-btn" onclick="copyItem(${idx})">Copy Item</button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderError(msg) {
+      document.getElementById('news-grid').innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; color: #f87171; padding: 2rem;">
+          ${escapeHTML(msg)}
+        </div>
+      `;
+    }
+
+    function escapeHTML(str) {
+      return String(str || '').replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    function copyJSON() {
+      navigator.clipboard.writeText(JSON.stringify(currentPayload, null, 2));
+      alert('Raw MCP JSON response copied to clipboard!');
+    }
+
+    function copyItem(idx) {
+      if (currentPayload[idx]) {
+        navigator.clipboard.writeText(JSON.stringify(currentPayload[idx], null, 2));
+        alert('Article JSON copied to clipboard!');
+      }
+    }
+
+    // Load initial headlines on start
+    window.addEventListener('DOMContentLoaded', () => {
+      loadHeadlines(6);
+    });
+  </script>
+</body>
+</html>
