@@ -2,11 +2,21 @@
 
 An MCP server built with FastMCP that parses RSS feeds for LLMs.
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
+[![FastMCP](https://img.shields.io/badge/FastMCP-4.1.0-emerald.svg)](https://github.com/jlowin/fastmcp)
+
 ---
 
 ## 📖 Overview
 
-The **Smart News Feed MCP Server** provides language models with real-time access to the latest news headlines and topic-specific search queries using Google News RSS feeds. Built with the lightweight [FastMCP](https://github.com/jlowin/fastmcp) framework, it automatically formats and strips noisy HTML markup from feed descriptions so LLMs receive clean, token-efficient summaries.
+The **Smart News Feed MCP Server** provides language models and AI agents with real-time access to the latest news headlines, category feeds, keyword search queries, and full article reader tools using Google News RSS feeds. 
+
+Built with the lightweight [FastMCP](https://github.com/jlowin/fastmcp) framework:
+* **Token-Efficient**: Automatically strips noisy HTML tags, ads, and markup so LLMs receive clean, concise summaries.
+* **Smart Caching**: Includes an in-memory 2-minute cache to prevent duplicate requests and protect against rate-limiting.
+* **No API Keys Required**: Uses open syndicated RSS feeds directly.
+* **Interactive Web Dashboard**: Includes a live browser UI (`--ui`) for visual inspection and manual testing alongside MCP.
 
 ---
 
@@ -31,7 +41,7 @@ python server.py
 > ```bash
 > python server.py --ui
 > ```
-> Then open [http://127.0.0.1:8081](http://127.0.0.1:8081) to search news and view live MCP JSON payloads!
+> Then open [http://127.0.0.1:8081](http://127.0.0.1:8081) to browse categories, search news, read articles, and view live MCP JSON payloads!
 
 ---
 
@@ -115,3 +125,70 @@ Search Google News RSS feed for articles matching a specific topic, keyword, or 
   }
 ]
 ```
+
+---
+
+### 3. `get_news_by_category`
+Retrieve top news headlines filtered by standard category topics.
+
+* **Supported Categories:** `technology`, `business`, `science`, `health`, `sports`, `world`, `entertainment`.
+* **Parameters:**
+  * `category` (*string*, required): Category topic name.
+  * `max_results` (*integer*, optional, default: `5`): Maximum number of articles to return.
+
+* **Example Call:**
+```json
+{
+  "name": "get_news_by_category",
+  "arguments": {
+    "category": "technology",
+    "max_results": 2
+  }
+}
+```
+
+---
+
+### 4. `get_article_content`
+Fetch and extract clean body paragraphs from any article URL for in-depth LLM analysis and summarization.
+
+* **Parameters:**
+  * `url` (*string*, required): Web URL of the article.
+  * `max_length` (*integer*, optional, default: `3000`): Maximum character length to return.
+
+* **Example Call:**
+```json
+{
+  "name": "get_article_content",
+  "arguments": {
+    "url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
+    "max_length": 1000
+  }
+}
+```
+
+* **Example Response:**
+```json
+{
+  "title": "Artificial intelligence - Wikipedia",
+  "url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
+  "paragraph_count": 183,
+  "content": "Artificial intelligence (AI) is the capability of computational systems..."
+}
+```
+
+---
+
+## 🧪 Testing
+
+To run the automated verification test for all 4 tools:
+
+```bash
+python test_server.py
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

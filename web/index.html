@@ -50,7 +50,6 @@
       background-attachment: fixed;
     }
 
-    /* Container */
     .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -58,7 +57,6 @@
       width: 100%;
     }
 
-    /* Header */
     header {
       display: flex;
       flex-direction: column;
@@ -110,11 +108,10 @@
     .subtitle {
       color: var(--text-muted);
       font-size: 1.05rem;
-      max-width: 640px;
+      max-width: 680px;
       margin: 0 auto;
     }
 
-    /* Search & Controls */
     .controls-card {
       background: var(--bg-card);
       backdrop-filter: blur(12px);
@@ -198,7 +195,6 @@
       border-color: rgba(255, 255, 255, 0.15);
     }
 
-    /* Topic Chips */
     .chips-row {
       display: flex;
       flex-wrap: wrap;
@@ -232,13 +228,14 @@
       transform: translateY(-1px);
     }
 
-    /* Meta Bar */
     .status-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1.5rem;
       padding: 0 0.25rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
 
     .results-count {
@@ -259,7 +256,6 @@
       border: 1px solid rgba(99, 102, 241, 0.2);
     }
 
-    /* Grid */
     .news-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -267,7 +263,6 @@
       margin-bottom: 2.5rem;
     }
 
-    /* News Card */
     .news-card {
       background: var(--bg-card);
       backdrop-filter: blur(8px);
@@ -279,7 +274,6 @@
       justify-content: space-between;
       transition: all 0.25s ease;
       position: relative;
-      overflow: hidden;
     }
 
     .news-card:hover {
@@ -350,6 +344,8 @@
       align-items: center;
       padding-top: 0.85rem;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .read-link {
@@ -368,7 +364,12 @@
       color: #a5b4fc;
     }
 
-    .copy-btn {
+    .btn-group {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .action-btn {
       background: transparent;
       border: 1px solid rgba(255, 255, 255, 0.08);
       color: var(--text-muted);
@@ -379,9 +380,75 @@
       transition: all 0.15s ease;
     }
 
-    .copy-btn:hover {
+    .action-btn:hover {
       background: rgba(255, 255, 255, 0.08);
       color: var(--text-main);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      padding: 1.5rem;
+    }
+
+    .modal-content {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 760px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+    }
+
+    .modal-close:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      font-size: 0.95rem;
+      color: #d1d5db;
+      line-height: 1.8;
+      white-space: pre-wrap;
     }
 
     /* JSON Inspector */
@@ -422,7 +489,6 @@
       max-height: 380px;
     }
 
-    /* Loading Spinner */
     .spinner {
       width: 18px;
       height: 18px;
@@ -437,7 +503,6 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Footer */
     footer {
       text-align: center;
       color: var(--text-muted);
@@ -462,10 +527,10 @@
     <header>
       <div class="badge-bar">
         <span class="pulse-dot"></span>
-        <span>FastMCP Server Online &bull; /mcp active</span>
+        <span>FastMCP Server Online &bull; /mcp active &bull; Auto-Cached</span>
       </div>
       <h1>Smart News Feed</h1>
-      <p class="subtitle">Real-time RSS Intelligence for LLMs & AI Agents with live FastMCP tool execution.</p>
+      <p class="subtitle">High-performance RSS Intelligence for LLMs & AI Agents with live FastMCP tool calling.</p>
     </header>
 
     <!-- Controls -->
@@ -495,20 +560,21 @@
         </div>
 
         <div class="chips-row">
-          <span class="chips-label">Quick Topics:</span>
-          <button type="button" class="chip active" onclick="setTopic(this, 'Top Headlines'); loadHeadlines();">🔥 Top Headlines</button>
-          <button type="button" class="chip" onclick="setTopic(this, 'Artificial Intelligence')">🤖 Artificial Intelligence</button>
-          <button type="button" class="chip" onclick="setTopic(this, 'Space Exploration')">🚀 Space</button>
-          <button type="button" class="chip" onclick="setTopic(this, 'Climate & Energy')">🌱 Clean Energy</button>
-          <button type="button" class="chip" onclick="setTopic(this, 'Technology')">💻 Tech</button>
-          <button type="button" class="chip" onclick="setTopic(this, 'Global Economy')">📈 Economy</button>
+          <span class="chips-label">Categories:</span>
+          <button type="button" class="chip active" onclick="selectChip(this); loadHeadlines();">🔥 Top Headlines</button>
+          <button type="button" class="chip" onclick="selectChip(this); loadCategory('technology');">💻 Technology</button>
+          <button type="button" class="chip" onclick="selectChip(this); loadCategory('business');">📈 Business</button>
+          <button type="button" class="chip" onclick="selectChip(this); loadCategory('science');">🔬 Science</button>
+          <button type="button" class="chip" onclick="selectChip(this); loadCategory('health');">🩺 Health</button>
+          <button type="button" class="chip" onclick="selectChip(this); loadCategory('sports');">⚽ Sports</button>
+          <button type="button" class="chip" onclick="selectChip(this); loadCategory('world');">🌍 World</button>
         </div>
       </form>
     </section>
 
     <!-- Status Bar -->
     <div class="status-bar">
-      <div class="results-count" id="results-count">Showing latest articles...</div>
+      <div class="results-count" id="results-count">Loading articles...</div>
       <div class="tool-badge" id="tool-badge">tool: get_google_news_feed</div>
     </div>
 
@@ -527,26 +593,35 @@
           </svg>
           Raw MCP JSON-RPC Output (Live Tool Response)
         </span>
-        <button class="copy-btn" onclick="copyJSON()">Copy Raw JSON</button>
+        <button class="action-btn" onclick="copyJSON()">Copy Raw JSON</button>
       </div>
       <pre><code id="json-preview">// Call a tool or load feed to inspect MCP response payload...</code></pre>
     </section>
 
     <footer>
-      Smart News Feed MCP Server &bull; Powered by FastMCP & Google News RSS &bull; <a href="/mcp" style="color: var(--accent); text-decoration: none;">MCP Endpoint: /mcp</a>
+      Smart News Feed MCP Server &bull; MIT License &bull; <a href="/mcp" style="color: var(--accent); text-decoration: none;">MCP Endpoint: /mcp</a>
     </footer>
+  </div>
+
+  <!-- Article Reader Modal -->
+  <div class="modal-overlay" id="article-modal" onclick="if(event.target === this) closeModal();">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Article Content Reader</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        Loading clean article body...
+      </div>
+    </div>
   </div>
 
   <script>
     let currentPayload = [];
 
-    function setTopic(element, topic) {
+    function selectChip(element) {
       document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
       element.classList.add('active');
-      if (topic !== 'Top Headlines') {
-        document.getElementById('search-input').value = topic;
-        performSearch(topic);
-      }
     }
 
     function showLoading(isLoading) {
@@ -563,14 +638,29 @@
 
     async function loadHeadlines(limit = 6) {
       showLoading(true);
-      document.getElementById('tool-badge').textContent = 'tool: get_google_news_feed(max_results=' + limit + ')';
+      document.getElementById('tool-badge').textContent = `tool: get_google_news_feed(max_results=${limit})`;
       try {
         const res = await fetch(`/api/feed?max_results=${limit}`);
         const data = await res.json();
         currentPayload = data;
         renderCards(data, 'Top Headlines');
       } catch (err) {
-        renderError('Failed to fetch Google News feed. Please check server.');
+        renderError('Failed to fetch Google News feed.');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function loadCategory(category, limit = 6) {
+      showLoading(true);
+      document.getElementById('tool-badge').textContent = `tool: get_news_by_category(category="${category}")`;
+      try {
+        const res = await fetch(`/api/category?category=${category}&max_results=${limit}`);
+        const data = await res.json();
+        currentPayload = data;
+        renderCards(data, `${category.toUpperCase()} News`);
+      } catch (err) {
+        renderError('Failed to load category feed.');
       } finally {
         showLoading(false);
       }
@@ -588,10 +678,36 @@
         currentPayload = data;
         renderCards(data, `Results for "${input}"`);
       } catch (err) {
-        renderError('Search failed. Please try again.');
+        renderError('Search failed.');
       } finally {
         showLoading(false);
       }
+    }
+
+    async function readArticle(url, title) {
+      const modal = document.getElementById('article-modal');
+      const modalTitle = document.getElementById('modal-title');
+      const modalBody = document.getElementById('modal-body');
+
+      modalTitle.textContent = title || 'Reading Article Content';
+      modalBody.textContent = 'Fetching clean article text via tool: get_article_content...';
+      modal.style.display = 'flex';
+
+      try {
+        const res = await fetch(`/api/article?url=${encodeURIComponent(url)}`);
+        const data = await res.json();
+        if (data.error) {
+          modalBody.textContent = 'Unable to extract full text: ' + data.error + '\n\nPlease use "Read Story" to open original publisher link.';
+        } else {
+          modalBody.textContent = data.content;
+        }
+      } catch (e) {
+        modalBody.textContent = 'Failed to fetch article text.';
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('article-modal').style.display = 'none';
     }
 
     function renderCards(articles, label) {
@@ -623,7 +739,10 @@
             <a href="${escapeHTML(article.url)}" target="_blank" rel="noopener noreferrer" class="read-link">
               Read Story <span>&rarr;</span>
             </a>
-            <button class="copy-btn" onclick="copyItem(${idx})">Copy Item</button>
+            <div class="btn-group">
+              <button class="action-btn" onclick="readArticle('${escapeHTML(article.url)}', '${escapeHTML(article.title).replace(/'/g, "\\'")}')">Extract Text</button>
+              <button class="action-btn" onclick="copyItem(${idx})">Copy JSON</button>
+            </div>
           </div>
         </article>
       `).join('');
@@ -655,7 +774,6 @@
       }
     }
 
-    // Load initial headlines on start
     window.addEventListener('DOMContentLoaded', () => {
       loadHeadlines(6);
     });
